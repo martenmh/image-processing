@@ -16,19 +16,32 @@ void addToColor(Vec3b &color, int val){
 	}
 }
 
-void setBlackWhite(Vec3b &color, int boundary){
+
+
+void setBlackWhite(Mat &image, int boundary){
 	// Set pixel black
-	if((color[0]+color[1]+color[2]) > (boundary * 3)){
-		setColor(color, 255);
-	}
-	// Set pixel white
-	else{
-		setColor(color, 0);
+	for(int x = 0; x<image.rows; ++x){
+    	for(int y = 0; y<image.cols; ++y){
+
+    		Vec3b &color = image.at<Vec3b>(Point(x,y));
+    		// Set pixel
+			if((color[0]+color[1]+color[2]) > (boundary * 3)){
+				setColor(color, 255);
+			}
+			// Set pixel white
+			else{
+				setColor(color, 0);
+			}
+		}
 	}
 }
 
 // Make light pixels lighter and dark pixels darker
-void setContrast(Vec3b &color, int boundary, int amount){
+void setContrast(Mat &image, int boundary, int amount){
+		for(int x = 0; x<image.rows; ++x){
+    	for(int y = 0; y<image.cols; ++y){
+    		Vec3b &color = image.at<Vec3b>(Point(x,y));
+    		
 	if((color[0]+color[1]+color[2]) > (boundary * 3)){
 		addToColor(color, amount);
 	}
@@ -37,18 +50,35 @@ void setContrast(Vec3b &color, int boundary, int amount){
 		addToColor(color, amount);
 	}
 }
+}
+}
 
 // Set all pixels brighter or darker 
-void setBrightness(Vec3b &color, int brightness){
+void setBrightness(Mat &image, int brightness){
+		for(int x = 0; x<image.rows; ++x){
+    	for(int y = 0; y<image.cols; ++y){
+    		Vec3b &color = image.at<Vec3b>(Point(x,y));
+    		
 	addToColor(color, brightness);
 }
-
-
-void setNegative(Vec3b &color){
-	color[0] = -color[0];
-	color[1] = -color[1];
-	color[2] = -color[2];
 }
+}
+
+
+void setNegative(Mat &image){
+	for(int x = 0; x<image.rows; ++x){
+    	for(int y = 0; y<image.cols; ++y){
+    		Vec3b &color = image.at<Vec3b>(Point(x,y));
+
+			color[0] = -color[0];
+			color[1] = -color[1];
+			color[2] = -color[2];
+		}
+	}	
+}
+
+
+
 
 enum FocusedMode{
 	BlackWhite,
@@ -80,6 +110,7 @@ int main(int argc, char *argv[])
     //std::string asciImage;
     FocusedMode mode = None;
     namedWindow("Display Image", WINDOW_AUTOSIZE );
+
    if ( !image.data )
     {
         printf("No image data \n");
@@ -87,7 +118,7 @@ int main(int argc, char *argv[])
     }
 
     bool looping = true;
-    int threshold = 0;
+    int threshold = 127;
     int value = 127;
     do{
 
@@ -100,45 +131,31 @@ int main(int argc, char *argv[])
 
 	 //setBrightness(image.at<Vec3b>(Point(x,y)), threshold);
 
+	   std::cout << mode << std::endl;
 	   
-
+	   std::cout << "Value: " << value << "\nThreshold: " << threshold << std::endl;
 	    switch(mode){
 	    	case BlackWhite:
-	    	for(int x = 0; x<image.rows; ++x){
-	    	for(int y = 0; y<image.cols; ++y){
-
-			    setBlackWhite(image.at<Vec3b>(Point(x,y)), value);
-
-			}
-		}
-	    		
+	    		setBlackWhite(image, value);
 	    	break;
 	    	case Contrast:
-	    	for(int x = 0; x<image.rows; ++x){
-	    	for(int y = 0; y<image.cols; ++y){
-	    		setContrast(image.at<Vec3b>(Point(x,y)), threshold, value);
+	    
+	    		setContrast(image, threshold, value);
 			    
 
-			}
-		}
+	
 	    		
 	    	break;
 	    	case Brightness:
-	    	for(int x = 0; x<image.rows; ++x){
-	    	for(int y = 0; y<image.cols; ++y){
+	    
+			    setBrightness(image, value);
 
-			    setBrightness(image.at<Vec3b>(Point(x,y)), value);
-
-			}
-		}
-	    		
+		
 	    	break;
 	    	case Negative:
-	    			for(int x = 0; x<image.rows; ++x){
-	    	for(int y = 0; y<image.cols; ++y){
-	    		setNegative(image.at<Vec3b>(Point(x,y)));
-	    	}
-	    }
+
+	    		setNegative(image);
+	   
 	    	break;
 	    	case None:
 	    	break;
